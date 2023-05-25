@@ -2,14 +2,16 @@ import React from "react";
 import Button from "../../components/button";
 import { useForm } from "react-hook-form";
 import classNames from "classnames";
+import { User } from "../../types/user";
+import { useAuth } from "../../context/auth";
+import { useRouter } from "next/router";
 
-type User = {
-  name: string;
-  nickname: string;
-  profile: string;
-};
-
+// アカウントを作成するコンポーネント
 const CreateAccount = () => {
+  const { isLoggedIn, isLoading } = useAuth();
+  // ページを指定のところへ飛ばす機能
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -20,6 +22,17 @@ const CreateAccount = () => {
   const submit = (data: User) => {
     console.log(data);
   };
+
+  // ログイン情報が読み込み中であれば白紙にする
+  if (isLoading) {
+    return null;
+  }
+
+  // 認証ガード機能
+  if (!isLoggedIn) {
+    router.push("/login");
+    return null;
+  }
 
   return (
     <div className="container">
@@ -102,7 +115,6 @@ const CreateAccount = () => {
             <p className="text-red-500 mt-0.5">{errors.profile?.message}</p>
           )}
         </div>
-        {/* <button type="button">フォームの中身をクリア</button> */}
         <Button>アカウント作成</Button>
       </form>
     </div>
