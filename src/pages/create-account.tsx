@@ -5,10 +5,12 @@ import classNames from "classnames";
 import { User } from "../../types/user";
 import { useAuth } from "../../context/auth";
 import { useRouter } from "next/router";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/client";
 
 // アカウントを作成するコンポーネント
 const CreateAccount = () => {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { fbUser, isLoading } = useAuth();
   // ページを指定のところへ飛ばす機能
   const router = useRouter();
 
@@ -19,20 +21,26 @@ const CreateAccount = () => {
     formState: { errors },
   } = useForm<User>();
 
-  const submit = (data: User) => {
-    console.log(data);
-  };
-
   // ログイン情報が読み込み中であれば白紙にする
   if (isLoading) {
     return null;
   }
 
   // 認証ガード機能
-  if (!isLoggedIn) {
+  if (!fbUser) {
     router.push("/login");
     return null;
   }
+
+  // 入力した情報をFirebase Firestoreに保存する機能
+  const submit = (data: User) => {
+    // ドキュメントを作成するところを指定する
+    const ref = doc(db, `users/${fbUser.uid}`);
+    setDoc(ref, data).then(() => {
+      alert("ユーザーを作成しました");
+      router.push("/");
+    });
+  };
 
   return (
     <div className="container">
