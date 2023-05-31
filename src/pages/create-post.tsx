@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { Post } from "../../types/post";
 import classNames from "classnames";
 import Button from "../../components/button";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../firebase/client";
 import { useAuth } from "../../context/auth";
 import { useRouter } from "next/router";
 
+// 投稿をfirestoreとalgoliaに保存する機能
 const CreatePost = () => {
   const {
     register,
@@ -18,14 +19,15 @@ const CreatePost = () => {
   const { fbUser, isLoading } = useAuth();
   const router = useRouter();
 
-  // SSRやSSG中にuseRouterを使うとエラーが起こるため、一時的に外している
-  // if (!fbUser) {
-  //   if (isLoading) {
-  //     router.push("/login");
-  //   }
-  //   return null;
-  // }
+  // 認証ガード機能
+  if (!fbUser) {
+    if (!isLoading) {
+      router.push("/login");
+    }
+    return null;
+  }
 
+  // doc, setDocを使ってデータベースに情報を保存する機能
   const submit = (data: Post) => {
     const ref = doc(collection(db, "posts"));
     const post: Post = {
@@ -34,8 +36,7 @@ const CreatePost = () => {
       body: data.body,
       createdAt: Date.now(),
       updatedAt: null,
-      // authorIdにstring型以外は入れたくないが、上のエラーが直らないため、一時的に型にundefindを加えている
-      authorId: fbUser?.uid,
+      authorId: fbUser.uid,
     };
     setDoc(ref, post).then(() => {
       alert("記事を作成しました");
