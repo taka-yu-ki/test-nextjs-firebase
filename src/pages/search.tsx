@@ -40,13 +40,13 @@ const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
 
   return (
     <div className="rounded-md shadow p-4">
-      <h2>{hit.title}</h2>
+      <h2 className="line-clamp-2">{hit.title}</h2>
       {/* firestoreから日付のデータを取得できないため、一時的に定数を入れている */}
       <p className="text-slate-500">
         {format(1685269825108, "yyyy年MM月dd日")}
       </p>
       {/* <p>{hit.createdAt}</p> */}
-      <p>{user && user.name}</p>
+      {user && <p className="truncate">{user.name}</p>}
     </div>
   );
 };
