@@ -1,23 +1,20 @@
-import React, { ReactNode } from "react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import algoliasearch from "algoliasearch/lite";
+import { format } from "date-fns";
+import { debounce } from "debounce";
+import Link from "next/link";
+import { ReactNode } from "react";
 import {
-  InstantSearch,
-  SearchBox,
   Hits,
   HitsProps,
+  InstantSearch,
+  Pagination,
+  SearchBox,
   SearchBoxProps,
   useInstantSearch,
-  Pagination,
-  Configure,
 } from "react-instantsearch-hooks-web";
+import { useUser } from "../../lib/user";
 import { Post } from "../../types/post";
-import { debounce } from "debounce";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
-import useSWR from "swr/immutable";
-import { User } from "../../types/user";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase/client";
 
 // algoliaの検索クエリ機能を結びつける
 const searchClient = algoliasearch(
@@ -27,25 +24,18 @@ const searchClient = algoliasearch(
 
 // 検索ワードに対して記事のタイトル・日付・著者が返される機能
 const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
-  // useSWRを利用してuser/${hit.authorId}というロッカーにuser情報を入れる処理
-  const { data: user } = useSWR<User>(
-    hit.authorId && `users/${hit.authorId}`,
-    async () => {
-      console.log("データ取得");
-      const ref = doc(db, `users/${hit.authorId}`);
-      const snap = await getDoc(ref);
-      return snap.data() as User;
-    }
-  );
+  const user = useUser(hit.authorId);
 
   return (
     <div className="rounded-md shadow p-4">
-      <h2 className="line-clamp-2">{hit.title}</h2>
-      {/* firestoreから日付のデータを取得できないため、一時的に定数を入れている */}
+      <h2 className="line-clamp-2">
+        <Link legacyBehavior href={`posts/${hit.id}`}>
+          <a>{hit.title}</a>
+        </Link>
+      </h2>
       <p className="text-slate-500">
-        {format(1685269825108, "yyyy年MM月dd日")}
+        {format(hit.createdAt, "yyyy年MM月dd日")}
       </p>
-      {/* <p>{hit.createdAt}</p> */}
       {user && <p className="truncate">{user.name}</p>}
     </div>
   );

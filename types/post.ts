@@ -1,5 +1,3 @@
-import { Timestamp } from "firebase-admin/firestore";
-
 export type Post = {
   id: string;
   title: string;
