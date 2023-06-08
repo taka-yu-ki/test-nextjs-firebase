@@ -4,6 +4,7 @@ import { adminDB } from "../../../../firebase/server";
 import { useUser } from "../../../../lib/user";
 import { Post } from "../../../../types/post";
 import Link from "next/link";
+import { useAuth } from "../../../../context/auth";
 
 export const getStaticProps: GetStaticProps<{ post: Post }> = async (
   context
@@ -29,6 +30,8 @@ const PostDetailPage = ({
   post,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const user = useUser(post?.authorId);
+  const { fbUser } = useAuth();
+  const isAuthoer = fbUser?.uid === post?.authorId;
 
   if (!post) {
     return <p>記事が存在しません</p>;
@@ -51,6 +54,11 @@ const PostDetailPage = ({
         </div>
       )}
       <p>{post.body}</p>
+      {isAuthoer && (
+        <Link href={`/posts/${post.id}/edit`} className="text-slate-500">
+          編集
+        </Link>
+      )}
     </div>
   );
 };
