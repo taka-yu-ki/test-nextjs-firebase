@@ -1,7 +1,5 @@
 import { Menu, Transition } from "@headlessui/react";
-import classNames from "classnames";
 import Link from "next/link";
-import { stringify } from "querystring";
 import { Fragment, ReactNode, forwardRef } from "react";
 import { logout } from "../lib/auth";
 
