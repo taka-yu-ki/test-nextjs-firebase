@@ -5,6 +5,9 @@ import { useUser } from "../../../../lib/user";
 import { Post } from "../../../../types/post";
 import Link from "next/link";
 import { useAuth } from "../../../../context/auth";
+import { NextPageWithLayout } from "@/pages/_app";
+import { ReactElement } from "react";
+import Layout from "../../../../components/layout";
 
 export const getStaticProps: GetStaticProps<{ post: Post }> = async (
   context
@@ -26,9 +29,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-const PostDetailPage = ({
-  post,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const PostDetailPage: NextPageWithLayout<
+  InferGetStaticPropsType<typeof getStaticProps>
+> = ({ post }) => {
   const user = useUser(post?.authorId);
   const { fbUser } = useAuth();
   const isAuthoer = fbUser?.uid === post?.authorId;
@@ -61,6 +64,11 @@ const PostDetailPage = ({
       )}
     </div>
   );
+};
+
+// componentsのlayoutを各ページで使用する機能
+PostDetailPage.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default PostDetailPage;

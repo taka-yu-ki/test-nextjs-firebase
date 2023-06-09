@@ -3,7 +3,7 @@ import algoliasearch from "algoliasearch/lite";
 import { format } from "date-fns";
 import { debounce } from "debounce";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactElement, ReactNode } from "react";
 import {
   Hits,
   HitsProps,
@@ -15,6 +15,8 @@ import {
 } from "react-instantsearch-hooks-web";
 import { useUser } from "../../lib/user";
 import { Post } from "../../types/post";
+import { NextPageWithLayout } from "./_app";
+import Layout from "../../components/layout";
 
 // algoliaの検索クエリ機能を結びつける
 const searchClient = algoliasearch(
@@ -64,7 +66,7 @@ const NoResultsBoundary = ({ children }: { children: ReactNode }) => {
 };
 
 // 検索機能
-const Search = () => {
+const Search: NextPageWithLayout = () => {
   // 検索をする機能
   const search: SearchBoxProps["queryHook"] = (query, hook) => {
     console.log("検索実行");
@@ -114,6 +116,11 @@ const Search = () => {
       </InstantSearch>
     </div>
   );
+};
+
+// componentsのlayoutを各ページで使用する機能
+Search.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default Search;
