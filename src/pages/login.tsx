@@ -12,10 +12,6 @@ const LoginPage: NextPageWithLayout = () => {
       <Button type="button" onClick={login}>
         ログインする
       </Button>
-
-      <Button type="button" onClick={logout}>
-        ログアウトする
-      </Button>
     </div>
   );
 };
