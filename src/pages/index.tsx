@@ -1,8 +1,11 @@
 import { NextPage } from "next";
 import { useAuth } from "../../context/auth";
 import Head from "next/head";
+import { NextPageWithLayout } from "./_app";
+import { ReactElement } from "react";
+import Layout from "../../components/layout";
 
-const Home: NextPage = () => {
+const Home: NextPageWithLayout = () => {
   const { user } = useAuth();
 
   return (
@@ -14,10 +17,16 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
+        <h1>トップページ</h1>
         <p>{user?.name}</p>
       </main>
     </div>
   );
+};
+
+// componentsのlayoutを各ページで使用する機能
+Home.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default Home;
