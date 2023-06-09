@@ -1,8 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import UserMenu from "./user-menu";
+import { useAuth } from "../context/auth";
+import Button from "./button";
+import { login } from "../lib/auth";
 
 const Header = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <header>
       <div className="flex items-center h-14 border-b container">
@@ -17,7 +27,16 @@ const Header = () => {
           </a>
         </Link>
         <span className="flex-1"></span>
-        <span className="bg-slate-300 rounded-full w-9 h-9" />
+        {user ? (
+          <UserMenu />
+        ) : (
+          <Button type="button" onClick={login}>
+            ログイン
+          </Button>
+          //   <Link legacyBehavior href="/login">
+          //     <a>ログイン</a>
+          //   </Link>
+        )}
       </div>
     </header>
   );
