@@ -1,12 +1,12 @@
-import React from "react";
-import Button from "./button";
-import { useForm } from "react-hook-form";
 import classNames from "classnames";
-import { User } from "../types/user";
-import { useAuth } from "../context/auth";
-import { useRouter } from "next/router";
 import { doc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { useAuth } from "../context/auth";
 import { db } from "../firebase/client";
+import { User } from "../types/user";
+import Button from "./button";
+import ImageSelector from "./image-selector";
 
 // アカウントを作成するコンポーネント
 const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
@@ -18,6 +18,7 @@ const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
   } = useForm<User>();
 
@@ -47,10 +48,8 @@ const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
       <h1>{isEditMode ? "プロフィール編集" : "アカウント作成"}</h1>
       <form onSubmit={handleSubmit(submit)} className="space-y-6">
         <div>
-          <label className="block mb-0.5" htmlFor="profile">
-            プロフィール画像
-          </label>
-          <input type="file" />
+          <h2>プロフィール画像</h2>
+          <ImageSelector name="avatarURL" control={control} />
         </div>
         <div>
           <label className="block mb-0.5" htmlFor="name">
