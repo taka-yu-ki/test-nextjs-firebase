@@ -19,12 +19,13 @@ const ImageSelector = <T extends FieldValues>({
   const ref = useRef<AvatarEditor>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // 画像のフォームフィールドとその制御を行うためのオブジェクトを取得する処理
   const { field } = useController({
     name,
     control,
   });
 
-  // useCallbackはUserFormが呼ばれた１回目のみ実行される。(第２引数が空の時)
+  // ドロップした画像を配列にして収納する機能　useCallbackはUserFormが呼ばれた１回目のみ実行される。(第２引数が空の時)
   const onDropAccepted = useCallback((acceptedFiles: File[]) => {
     setSelectedImage(acceptedFiles[0]);
     setIsModalOpen(true);
@@ -34,7 +35,7 @@ const ImageSelector = <T extends FieldValues>({
     setIsModalOpen(false);
   };
 
-  // プロフィール画像に入れるデータの種類を指定している
+  // プロフィール画像に入れる処理とそのデータの種類を指定している
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDropAccepted,
     accept: {
@@ -48,6 +49,7 @@ const ImageSelector = <T extends FieldValues>({
     setScale(parseFloat(e.target.value));
   };
 
+  // refを受け取り、それをcanvasを用いてデータ型に変換する処理
   const getCroppedImage = () => {
     const image = ref.current?.getImage();
     const canvas = document.createElement("canvas");
