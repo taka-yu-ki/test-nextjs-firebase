@@ -3,14 +3,21 @@ import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/auth";
-import { db } from "../firebase/client";
+import { db, storage } from "../firebase/client";
 import { User } from "../types/user";
 import Button from "./button";
 import ImageSelector from "./image-selector";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadString,
+} from "firebase/storage";
+import { useEffect } from "react";
 
 // アカウントを作成するコンポーネント
 const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
-  const { fbUser, isLoading } = useAuth();
+  const { fbUser, isLoading, user } = useAuth();
   // ページを指定のところへ飛ばす機能
   const router = useRouter();
 
@@ -19,8 +26,15 @@ const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
     handleSubmit,
     watch,
     control,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<User>();
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      reset(user);
+    }
+  }, [isEditMode, user]);
 
   // ログイン情報が読み込み中であれば白紙にする
   if (isLoading) {
@@ -34,12 +48,24 @@ const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
   }
 
   // 入力した情報をFirebase Firestoreに保存する機能
-  const submit = (data: User) => {
+  const submit = async (data: User) => {
+    if (data.avatarURL?.match(/^data:/)) {
+      const imageRef = ref(storage, `users/${fbUser.uid}/avatar`);
+      await uploadString(imageRef, data.avatarURL, "data_url");
+      data.avatarURL = await getDownloadURL(imageRef);
+    }
+
+    if (!data.avatarURL && user?.avatarURL) {
+      const imageRef = ref(storage, `users/${fbUser.uid}/avatar`);
+      await deleteObject(imageRef);
+    }
     // ドキュメントを作成するところを指定する
-    const ref = doc(db, `users/${fbUser.uid}`);
-    setDoc(ref, data).then(() => {
-      alert("ユーザーを作成しました");
-      router.push("/");
+    const documentRef = doc(db, `users/${fbUser.uid}`);
+    return setDoc(documentRef, data).then(() => {
+      alert(`ユーザーを${isEditMode ? "更新" : "作成"}しました"`);
+      if (!isEditMode) {
+        router.push("/");
+      }
     });
   };
 
@@ -128,7 +154,9 @@ const UserForm = ({ isEditMode }: { isEditMode: boolean }) => {
             <p className="text-red-500 mt-0.5">{errors.profile?.message}</p>
           )}
         </div>
-        <Button>{isEditMode ? "更新" : "アカウント作成"}</Button>
+        <Button disabled={isSubmitting}>
+          {isEditMode ? "更新" : "アカウント作成"}
+        </Button>
       </form>
     </div>
   );
