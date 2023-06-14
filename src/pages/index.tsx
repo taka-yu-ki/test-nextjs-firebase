@@ -1,11 +1,33 @@
-import { NextPage } from "next";
+import { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
 import { useAuth } from "../../context/auth";
 import Head from "next/head";
 import { NextPageWithLayout } from "./_app";
 import { ReactElement } from "react";
 import Layout from "../../components/layout";
+import { Post } from "../../types/post";
+import { adminDB } from "../../firebase/server";
+import PostItemCard from "../../components/post-item-card";
 
-const Home: NextPageWithLayout = () => {
+export const getStaticProps: GetStaticProps<{
+  posts: Post[];
+}> = async (context) => {
+  const snap = await adminDB
+    .collection(`posts`)
+    .orderBy("createdAt", "desc")
+    .limit(20)
+    .get();
+  const posts = snap.docs.map((doc) => doc.data() as Post);
+
+  return {
+    props: {
+      posts,
+    },
+  };
+};
+
+const Home: NextPageWithLayout<
+  InferGetStaticPropsType<typeof getStaticProps>
+> = ({ posts }) => {
   const { user } = useAuth();
 
   return (
@@ -17,8 +39,18 @@ const Home: NextPageWithLayout = () => {
       </Head>
 
       <main>
-        <h1>トップページ</h1>
-        <p>{user?.name}</p>
+        <h2>最新の記事</h2>
+        {posts.length ? (
+          <ul className="space-y-3">
+            {posts?.map((post) => (
+              <li key={post.id}>
+                <PostItemCard post={post} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>記事がありません</p>
+        )}
       </main>
     </div>
   );
