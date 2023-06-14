@@ -1,58 +1,25 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import algoliasearch from "algoliasearch/lite";
-import { format } from "date-fns";
 import { debounce } from "debounce";
-import Link from "next/link";
 import { ReactElement, ReactNode } from "react";
 import {
   Hits,
-  HitsProps,
   InstantSearch,
   Pagination,
   SearchBox,
   SearchBoxProps,
   useInstantSearch,
 } from "react-instantsearch-hooks-web";
-import { useUser } from "../../lib/user";
+import Layout from "../../components/layout";
 import { Post } from "../../types/post";
 import { NextPageWithLayout } from "./_app";
-import Layout from "../../components/layout";
+import PostItemCard from "../../components/post-item-card";
 
 // algoliaの検索クエリ機能を結びつける
 const searchClient = algoliasearch(
   "XFS9BODPDH",
   "e068a01b53824eb9301335e26b78da1d"
 );
-
-// 検索ワードに対して記事のタイトル・日付・著者が返される機能
-const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
-  const user = useUser(hit.authorId);
-
-  return (
-    <div className="rounded-md shadow p-4">
-      <h2 className="line-clamp-2">
-        <Link legacyBehavior href={`posts/${hit.id}`}>
-          <a>{hit.title}</a>
-        </Link>
-      </h2>
-      {user && (
-        <div className="flex items-center">
-          <img
-            src={user?.avatarURL}
-            className="w-8 h-8 block rounded-full mr-2"
-            alt=""
-          />
-          <div>
-            <p className="truncate">{user.name}</p>
-            <p className="text-slate-500 text-sm">
-              {format(hit.createdAt, "yyyy年MM月dd日")}
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 // 検索結果の表示を編集する処理
 const NoResultsBoundary = ({ children }: { children: ReactNode }) => {
@@ -106,13 +73,13 @@ const Search: NextPageWithLayout = () => {
           queryHook={debounce(search, 500)}
         />
         {/* １ページに入る検索結果を編集する処理 */}
-        {/* <Configure hitsPerPage={2} /> */}
+        {/* <Configure postsPerPage={2} /> */}
         <NoResultsBoundary>
           <Hits<Post>
             classNames={{
               list: "space-y-4 my-6",
             }}
-            hitComponent={Hit}
+            hitComponent={({ hit }) => <PostItemCard post={hit} />}
           />
           {/* 検索結果のページを表示・移動する処理 */}
           <Pagination

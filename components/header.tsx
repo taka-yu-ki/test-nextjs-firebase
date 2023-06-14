@@ -41,7 +41,12 @@ const Header = () => {
               />
             </a>
           </Link>
-          <span className="flex-1"></span>
+          <span className="flex-1" />
+          {user && (
+            <Link legacyBehavior href="create-post">
+              <a className="mr-4">投稿</a>
+            </Link>
+          )}
           {user ? (
             <UserMenu />
           ) : (

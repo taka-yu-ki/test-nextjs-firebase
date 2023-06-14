@@ -7,6 +7,7 @@ import { collection, deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/client";
 import { useAuth } from "../context/auth";
 import { useRouter } from "next/router";
+import { revalidate } from "../lib/revalidate";
 
 // 投稿をfirestoreとalgoliaに保存する機能
 const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
@@ -54,16 +55,9 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
     };
 
     setDoc(ref, post).then(async () => {
-      const path = `/posts/${post.id}`;
+      await revalidate("/");
 
-      const token = await auth.currentUser?.getIdToken(true);
-
-      fetch(`/api/revalidate?path=${path}`, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      })
+      return revalidate(`/posts/${post.id}`)
         .then((res) => res.json())
         .then(() => {
           alert(`記事を${isEditMode ? "更新" : "作成"}しました`);
@@ -77,8 +71,12 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
 
   const deletePost = () => {
     const ref = doc(db, `posts/${editTargetId}`);
-    return deleteDoc(ref).then(() => {
+    return deleteDoc(ref).then(async () => {
       alert("記事を削除しました");
+
+      await revalidate("/");
+      await revalidate(`/posts/${editTargetId}`);
+
       router.push("/");
     });
   };
@@ -137,9 +135,11 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
         </div>
 
         <Button>{isEditMode ? "保存" : "投稿"}</Button>
-        <button type="button" onClick={deletePost}>
-          削除
-        </button>
+        {isEditMode && (
+          <button type="button" onClick={deletePost}>
+            削除
+          </button>
+        )}
       </form>
     </div>
   );
