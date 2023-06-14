@@ -35,10 +35,21 @@ const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
           <a>{hit.title}</a>
         </Link>
       </h2>
-      <p className="text-slate-500">
-        {format(hit.createdAt, "yyyy年MM月dd日")}
-      </p>
-      {user && <p className="truncate">{user.name}</p>}
+      {user && (
+        <div className="flex items-center">
+          <img
+            src={user?.avatarURL}
+            className="w-8 h-8 block rounded-full mr-2"
+            alt=""
+          />
+          <div>
+            <p className="truncate">{user.name}</p>
+            <p className="text-slate-500 text-sm">
+              {format(hit.createdAt, "yyyy年MM月dd日")}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
