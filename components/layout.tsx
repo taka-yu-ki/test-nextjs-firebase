@@ -1,13 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
-import React, { ReactNode } from "react";
-import Header from "./header";
+import { ReactNode } from "react";
 import Footer from "./footer";
+import Header from "./header";
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div>
       <Header />
-      <main>{children}</main>
+      <main className="relative z-0">{children}</main>
       <Footer />
     </div>
   );

@@ -25,6 +25,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.43.9",
     "react-instantsearch-hooks-web": "^6.44.0",
+    "swiper": "^9.4.1",
     "swr": "^2.1.5",
     "typescript": "5.0.4"
   },
