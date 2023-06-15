@@ -25,7 +25,7 @@ const ImageSelector = <T extends FieldValues>({
     control,
   });
 
-  // ドロップした画像を配列にして収納する機能　useCallbackはUserFormが呼ばれた１回目のみ実行される。(第２引数が空の時)
+  // ドロップした画像を配列にして収納する機能　useCallbackはUserFormが呼ばれた1回目のみ実行される。(第2引数が空の時)
   const onDropAccepted = useCallback((acceptedFiles: File[]) => {
     setSelectedImage(acceptedFiles[0]);
     setIsModalOpen(true);

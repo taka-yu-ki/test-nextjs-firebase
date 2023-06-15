@@ -30,7 +30,7 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
         reset(oldPost);
       });
     }
-  }, [editTargetId]);
+  }, [editTargetId, reset]);
 
   // 認証ガード機能
   if (!fbUser) {
